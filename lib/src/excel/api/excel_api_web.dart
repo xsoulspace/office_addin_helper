@@ -80,8 +80,9 @@ class ExcelApiImpl implements ExcelApiI {
   }
 
   @override
-  Future<SheetModel> getSheetById(final String id) async {
-    final sheet = context.workbook.worksheets.getItem(id)..loadProperties();
+  Future<SheetModel> getSheetById(final String nameOrId) async {
+    final sheet = context.workbook.worksheets.getItem(nameOrId)
+      ..loadProperties();
     await sync();
     return sheet.toSheetModel();
   }
