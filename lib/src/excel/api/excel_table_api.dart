@@ -8,12 +8,14 @@ abstract class ExcelTableApi {
   final trackingRanges = <String, RangeModel>{};
   Future<SheetModel> getSheet(final String nameOrId);
   Future<RangeModel> getRowRange({
+    /// absolute positioned cell
     required final CellModel topLeftCell,
     required final SheetModel sheet,
     final bool shouldTrackRange = false,
     final int relativeRowIndex = 0,
   });
   Future<RangeModel> getColumnRange({
+    /// absolute positioned cell
     required final CellModel topLeftCell,
     required final SheetModel sheet,
     final int relativeColumnIndex = 0,

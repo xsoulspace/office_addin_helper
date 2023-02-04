@@ -40,6 +40,56 @@ class ExcelTableApiImpl extends ExcelTableApi {
     return excelApi.getSheetById(nameOrId);
   }
 
+  ExcelRangeModel<Range> _getRange({
+    required final ExcelSheetModel<Worksheet> sheet,
+    required final int absoluteRowIndex,
+    required final int absoluteColumnIndex,
+    required final int rowCount,
+    required final int columnCount,
+    required final int relativeRowIndex,
+    required final int relativeColumnIndex,
+  }) {
+    final rowIndex = absoluteRowIndex + relativeRowIndex;
+    final columnIndex = absoluteColumnIndex + relativeColumnIndex;
+
+    final excelRange = sheet.worksheet.getRangeByIndexes(
+      startRow: rowIndex,
+      startColumn: columnIndex,
+      rowCount: rowCount,
+      columnCount: columnCount,
+    );
+    final range = ExcelRangeModel(
+      range: excelRange,
+      relativeTopLeftCell: CellModel(
+        columnIndex: relativeColumnIndex,
+        rowIndex: relativeRowIndex,
+      ),
+      topLeftCell: CellModel(
+        columnIndex: absoluteRowIndex,
+        rowIndex: absoluteColumnIndex,
+      ),
+      rowsCount: rowCount,
+      columnsCount: columnCount,
+    );
+    return range;
+  }
+
+  Future<CellModel> getAbsoluteBottomRightCell({
+    required final ExcelSheetModel<Worksheet> sheet,
+    required final CellModel topLeftCell,
+  }) async {
+    final usedRange = sheet.worksheet
+        .getCell(row: topLeftCell.rowIndex, column: topLeftCell.columnIndex)
+        .getSurroundingRegion()
+        .getUsedRange()
+      ..load(['rowCount', 'columnCount']);
+    await sync();
+    return CellModel(
+      rowIndex: usedRange.rowCount + topLeftCell.rowIndex,
+      columnIndex: usedRange.columnCount + topLeftCell.columnIndex,
+    );
+  }
+
   @override
   Future<RangeModel> getColumnRange({
     required final CellModel topLeftCell,
@@ -50,23 +100,36 @@ class ExcelTableApiImpl extends ExcelTableApi {
     final int? rowsCount,
   }) async {
     final excelSheet = sheet.toExcelSheet();
-    final rowRange = excelSheet.worksheet
-        .getCell(row: topLeftCell.rowIndex, column: topLeftCell.columnIndex)
-        .getUsedRange()
-        .getColumn(relativeColumnIndex);
 
-    final valuesRowsCount = ;
-
-    final range = ExcelRangeModel(
-      range: rowRange,
-      relativeTopLeftCell: CellModel(
-        rowIndex: 0,
-        columnIndex: relativeColumnIndex,
-      ),
+    final absoluteLastCell = await getAbsoluteBottomRightCell(
+      sheet: excelSheet,
       topLeftCell: topLeftCell,
-      rowsCount: rowsCount ?? valuesRowsCount,
-      columnsCount: 1,
     );
+
+    final effectiveRowsCount = () {
+      if (rowsCount != null) return rowsCount;
+
+      return absoluteLastCell.rowIndex - topLeftCell.rowIndex;
+    }();
+
+    final int relativeRowIndex = () {
+      if (shouldInsertUnderLastRow) {
+        return absoluteLastCell.rowIndex;
+      } else {
+        return 0;
+      }
+    }();
+
+    final range = _getRange(
+      absoluteColumnIndex: topLeftCell.columnIndex,
+      absoluteRowIndex: topLeftCell.rowIndex,
+      relativeColumnIndex: relativeColumnIndex,
+      relativeRowIndex: relativeRowIndex,
+      rowCount: effectiveRowsCount,
+      columnCount: 1,
+      sheet: excelSheet,
+    );
+
     if (shouldTrackRange) {
       excelSheet.addTrackingRange(range);
     }
@@ -79,25 +142,30 @@ class ExcelTableApiImpl extends ExcelTableApi {
     required final SheetModel sheet,
     final bool shouldTrackRange = false,
     final int relativeRowIndex = 0,
+    final int? columnCount,
   }) async {
     final excelSheet = sheet.toExcelSheet();
-    final rowRange = excelSheet.worksheet
-        .getCell(row: topLeftCell.rowIndex, column: topLeftCell.columnIndex)
-        .getUsedRange()
-        .getRow(relativeRowIndex);
-    
-    final valuesColumnsCount =  ;
-      
-    final range = ExcelRangeModel(
-      range: rowRange,
-      relativeTopLeftCell: CellModel(
-        rowIndex: relativeRowIndex,
-        columnIndex: 0,
-      ),
+    final absoluteLastCell = await getAbsoluteBottomRightCell(
+      sheet: excelSheet,
       topLeftCell: topLeftCell,
-      rowsCount: 1,
-      columnsCount: valuesColumnsCount,
     );
+
+    final effectiveColumnCount = () {
+      if (columnCount != null) return columnCount;
+
+      return absoluteLastCell.columnIndex - topLeftCell.columnIndex;
+    }();
+
+    final range = _getRange(
+      absoluteColumnIndex: topLeftCell.columnIndex,
+      absoluteRowIndex: topLeftCell.rowIndex,
+      relativeColumnIndex: 0,
+      relativeRowIndex: relativeRowIndex,
+      rowCount: 1,
+      columnCount: effectiveColumnCount,
+      sheet: excelSheet,
+    );
+
     if (shouldTrackRange) {
       excelSheet.addTrackingRange(range);
     }
