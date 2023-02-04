@@ -51,13 +51,26 @@ class ExcelTableApiImpl extends ExcelTableApi {
   }) async {
     final excelSheet = sheet.toExcelSheet();
     final rowRange = excelSheet.worksheet
-        .getCell(topLeftCell.rowIndex, topLeftCell.columnIndex)
+        .getCell(row: topLeftCell.rowIndex, column: topLeftCell.columnIndex)
         .getUsedRange()
         .getColumn(relativeColumnIndex);
+
+    final valuesRowsCount = ;
+
+    final range = ExcelRangeModel(
+      range: rowRange,
+      relativeTopLeftCell: CellModel(
+        rowIndex: 0,
+        columnIndex: relativeColumnIndex,
+      ),
+      topLeftCell: topLeftCell,
+      rowsCount: rowsCount ?? valuesRowsCount,
+      columnsCount: 1,
+    );
     if (shouldTrackRange) {
-      excelSheet.addTrackingRange(rowRange);
+      excelSheet.addTrackingRange(range);
     }
-    return rowRange;
+    return range;
   }
 
   @override
@@ -66,26 +79,39 @@ class ExcelTableApiImpl extends ExcelTableApi {
     required final SheetModel sheet,
     final bool shouldTrackRange = false,
     final int relativeRowIndex = 0,
-  }) {
+  }) async {
     final excelSheet = sheet.toExcelSheet();
     final rowRange = excelSheet.worksheet
-        .getCell(topLeftCell.rowIndex, topLeftCell.columnIndex)
+        .getCell(row: topLeftCell.rowIndex, column: topLeftCell.columnIndex)
         .getUsedRange()
         .getRow(relativeRowIndex);
-
+    
+    final valuesColumnsCount =  ;
+      
+    final range = ExcelRangeModel(
+      range: rowRange,
+      relativeTopLeftCell: CellModel(
+        rowIndex: relativeRowIndex,
+        columnIndex: 0,
+      ),
+      topLeftCell: topLeftCell,
+      rowsCount: 1,
+      columnsCount: valuesColumnsCount,
+    );
     if (shouldTrackRange) {
-      excelSheet.addTrackingRange(rowRange);
+      excelSheet.addTrackingRange(range);
     }
-    return rowRange;
+    return range;
   }
 
   @override
   Future<ExcelTableData> loadRangeValues({
     required final RangeModel range,
   }) async {
-    range.range.load('values');
+    final excelRange = range.toExcelRange();
+    excelRange.range.load(['values']);
     await sync();
-    return range.range.values;
+    return excelRange.range.values;
   }
 
   @override
@@ -93,7 +119,8 @@ class ExcelTableApiImpl extends ExcelTableApi {
     required final RangeModel range,
     required final ExcelTableData values,
   }) async {
-    liveRange.range.values = values;
+    final excelRange = range.toExcelRange();
+    excelRange.range.values = values;
     await sync();
   }
 
