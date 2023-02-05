@@ -84,15 +84,17 @@ class ExcelTableApiImpl extends ExcelTableApi {
     required final ExcelSheetModel<Worksheet> sheet,
     required final CellModel topLeftCell,
   }) async {
-    final usedRange = sheet.worksheet
+    final lastCell = sheet.worksheet
         .getCell(row: topLeftCell.rowIndex, column: topLeftCell.columnIndex)
         .getSurroundingRegion()
         .getUsedRange()
-      ..load(['rowCount', 'columnCount']);
+        .getLastRow()
+        .getLastCell()
+      ..load(['rowIndex', 'columnIndex']);
     await sync();
     return CellModel(
-      rowIndex: (usedRange.rowCount - 1) + topLeftCell.rowIndex,
-      columnIndex: (usedRange.columnCount - 1) + topLeftCell.columnIndex,
+      rowIndex: lastCell.rowIndex,
+      columnIndex: lastCell.columnIndex,
     );
   }
 
@@ -111,7 +113,7 @@ class ExcelTableApiImpl extends ExcelTableApi {
       sheet: excelSheet,
       topLeftCell: topLeftCell,
     );
-    final allRowsCount = absoluteLastCell.rowIndex - topLeftCell.rowIndex;
+    final allRowsCount = absoluteLastCell.rowIndex - topLeftCell.rowIndex + 1;
 
     final effectiveRowsCount = () {
       if (rowsCount != null) return rowsCount;
