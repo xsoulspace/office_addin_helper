@@ -49,6 +49,14 @@ class ExcelTableApiImpl extends ExcelTableApi {
   }) {
     final rowIndex = absoluteRowIndex + relativeRowIndex;
     final columnIndex = absoluteColumnIndex + relativeColumnIndex;
+    print({
+      '_getRange': {
+        'rowIndex': rowIndex,
+        'columnIndex': columnIndex,
+        'rowCount': rowCount,
+        'columnCount': columnCount,
+      }
+    });
 
     final excelRange = sheet.worksheet.getRangeByIndexes(
       startRow: rowIndex,
@@ -83,8 +91,8 @@ class ExcelTableApiImpl extends ExcelTableApi {
       ..load(['rowCount', 'columnCount']);
     await sync();
     return CellModel(
-      rowIndex: usedRange.rowCount + topLeftCell.rowIndex,
-      columnIndex: usedRange.columnCount + topLeftCell.columnIndex,
+      rowIndex: (usedRange.rowCount - 1) + topLeftCell.rowIndex,
+      columnIndex: (usedRange.columnCount - 1) + topLeftCell.columnIndex,
     );
   }
 
@@ -103,20 +111,29 @@ class ExcelTableApiImpl extends ExcelTableApi {
       sheet: excelSheet,
       topLeftCell: topLeftCell,
     );
+    final allRowsCount = absoluteLastCell.rowIndex - topLeftCell.rowIndex;
 
     final effectiveRowsCount = () {
       if (rowsCount != null) return rowsCount;
 
-      return absoluteLastCell.rowIndex - topLeftCell.rowIndex;
+      return allRowsCount;
     }();
 
     final int relativeRowIndex = () {
       if (shouldInsertUnderLastRow) {
-        return absoluteLastCell.rowIndex;
+        return allRowsCount;
       } else {
         return 0;
       }
     }();
+    print({
+      'topLeftCell': topLeftCell,
+      'absoluteLastCell': absoluteLastCell,
+      'allRowsCount': allRowsCount,
+      'effectiveRowsCount': effectiveRowsCount,
+      'rowsCount': rowsCount,
+      'relativeRowIndex': relativeRowIndex
+    });
 
     final range = _getRange(
       absoluteColumnIndex: topLeftCell.columnIndex,
@@ -147,11 +164,13 @@ class ExcelTableApiImpl extends ExcelTableApi {
       sheet: excelSheet,
       topLeftCell: topLeftCell,
     );
+    final allColumnsCount =
+        absoluteLastCell.columnIndex - topLeftCell.columnIndex + 1;
 
     final effectiveColumnCount = () {
       if (columnCount != null) return columnCount;
 
-      return absoluteLastCell.columnIndex - topLeftCell.columnIndex;
+      return allColumnsCount;
     }();
 
     final range = _getRange(
