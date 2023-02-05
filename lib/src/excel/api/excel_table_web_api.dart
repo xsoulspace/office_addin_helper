@@ -49,14 +49,6 @@ class ExcelTableApiImpl extends ExcelTableApi {
   }) {
     final rowIndex = absoluteRowIndex + relativeRowIndex;
     final columnIndex = absoluteColumnIndex + relativeColumnIndex;
-    print({
-      '_getRange': {
-        'rowIndex': rowIndex,
-        'columnIndex': columnIndex,
-        'rowCount': rowCount,
-        'columnCount': columnCount,
-      }
-    });
 
     final excelRange = sheet.worksheet.getRangeByIndexes(
       startRow: rowIndex,
@@ -128,14 +120,6 @@ class ExcelTableApiImpl extends ExcelTableApi {
         return 0;
       }
     }();
-    print({
-      'topLeftCell': topLeftCell,
-      'absoluteLastCell': absoluteLastCell,
-      'allRowsCount': allRowsCount,
-      'effectiveRowsCount': effectiveRowsCount,
-      'rowsCount': rowsCount,
-      'relativeRowIndex': relativeRowIndex
-    });
 
     final range = _getRange(
       absoluteColumnIndex: topLeftCell.columnIndex,

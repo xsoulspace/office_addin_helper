@@ -23,6 +23,10 @@ The core API is based in https://pub.dev/packages/officejs library which is wrap
 
 Please note: the package is a Work In Progress and has high risk of changes.
 
+Examples of how it can be used please see in two repositories below:
+https://github.com/xsoulspace/sheets_manager_excel_addin
+https://github.com/xsoulspace/tables_syncer_excel_addin
+
 ## Donations / Sponsor
 
 Please sponsor or donate to the creator on [Boosty](https://boosty.to/arenukvern) or [CloudTips](https://pay.cloudtips.ru/p/1629cd27).
