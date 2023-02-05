@@ -1,3 +1,7 @@
+## 0.4.1
+
+- added relativeRowIndex, relativeColumnIndex to CellModel
+
 ## 0.4.0
 
 - added ExcelTableApi

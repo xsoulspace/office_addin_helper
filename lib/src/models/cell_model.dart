@@ -24,4 +24,12 @@ class CellModel with _$CellModel {
       _$CellModelFromJson(json as Map<String, dynamic>);
 
   static const zero = CellModel(columnIndex: 0, rowIndex: 0);
+
+  /// For user it is more convenient to see realistic row index,
+  /// instead of Developer side rowIndex
+  int get relativeRowIndex => rowIndex + 1;
+
+  /// For user it is more convenient to see realistic column index,
+  /// instead of Developer side columnIndex
+  int get relativeColumnIndex => columnIndex + 1;
 }

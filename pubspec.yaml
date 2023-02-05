@@ -1,6 +1,6 @@
 name: office_addin_helper
 description: Unofficial Helper classes for Office Addins (https://github.com/OfficeDev/office-js) development for Flutter/Dart
-version: 0.4.0
+version: 0.4.1
 homepage: https://github.com/xsoulspace/office_addin_helper
 
 environment:
