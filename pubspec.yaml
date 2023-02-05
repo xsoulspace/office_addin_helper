@@ -12,6 +12,8 @@ dependencies:
     sdk: flutter
   freezed_annotation: ^2.0.3
   js: ^0.6.4
+  # officejs: ^0.3.1
+
   officejs:
     path: ../officejs_dart
   life_hooks: ^0.0.18

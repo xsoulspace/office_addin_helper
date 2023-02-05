@@ -18,21 +18,19 @@ extension RangeModelExtension on RangeModel {
 }
 
 extension ExcelSheetModelExtension on ExcelSheetModel<Worksheet> {
-  void addTrackingRange(final ExcelRangeModel excelRange) {
+  void addTrackingRange(final ExcelRangeModel<Range> excelRange) {
     worksheet.context.trackedObjects.add(excelRange.range);
   }
 
-  void removeTrackingRange(final ExcelRangeModel excelRange) {
+  void removeTrackingRange(final ExcelRangeModel<Range> excelRange) {
     worksheet.context.trackedObjects.remove(excelRange.range);
   }
 }
 
 class ExcelTableApiImpl extends ExcelTableApi {
   ExcelTableApiImpl({
-    required this.excelApi,
+    required super.excelApi,
   });
-
-  final ExcelApiI excelApi;
 
   Future<void> sync() async => excelApi.sync();
   @override

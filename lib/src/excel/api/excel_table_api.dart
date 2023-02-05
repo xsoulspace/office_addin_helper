@@ -1,10 +1,14 @@
 import '../../models/models.dart';
+import 'excel_api_i.dart';
 
 export 'excel_table_mock_api.dart'
     if (dart.library.html) 'excel_table_web_api.dart';
 
 abstract class ExcelTableApi {
-  ExcelTableApi();
+  ExcelTableApi({
+    required this.excelApi,
+  });
+  final ExcelApiI excelApi;
   final trackingRanges = <String, RangeModel>{};
   Future<SheetModel> getSheet(final String nameOrId);
   Future<RangeModel> getRowRange({
@@ -39,6 +43,7 @@ abstract class ExcelTableApi {
 class ExcelTableMockApiImpl extends ExcelTableApi {
   ExcelTableMockApiImpl({
     required this.tables,
+    required super.excelApi,
   });
   final Map<CellModel, List<List<dynamic>?>> tables;
 
